@@ -1,5 +1,4 @@
 import 'dotenv/config'
-import restart from 'vite-plugin-restart'
 import wasm from 'vite-plugin-wasm'
 import topLevelAwait from 'vite-plugin-top-level-await'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
@@ -17,7 +16,8 @@ export default {
         outDir: '../dist',
         emptyOutDir: true,
         sourcemap: false,
-        target: 'esnext'
+        target: 'esnext',
+        chunkSizeWarningLimit: 5000
     },
     assetsInclude: ['**/*.wasm'],
     optimizeDeps: {
@@ -26,7 +26,6 @@ export default {
     plugins: [
         wasm(),
         topLevelAwait(),
-        restart({ restart: [ '../static/**' ] }),
         nodePolyfills()
     ]
 }
