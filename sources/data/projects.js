@@ -1,69 +1,31 @@
 export default [
     {
-        title: 'Three.js Journey',
-        titleSmall: [ 'Three.js', 'Journey' ],
-        url: 'https://threejs-journey.com',
+        title: '3D Web Experiences',
+        titleSmall: [ '3D Web', 'Experiences' ],
+        url: 'https://t.me/shibainuo',
         attributes:
         {
-            role: [ 'developer', 'formater' ],
-            with: [ 'Hervé Studio', 'Bonhomme Paris' ]
+            role: [ 'Creative Developer' ],
+            with: [ 'Custom Interactive Worlds' ]
         },
-        distinctions: [ 'fwa' ], // 'awwwards', 'fwa', 'cssda'
+        distinctions: [ ],
         images:
         [
             'threejs-journey-1.ktx',
             'threejs-journey-2.ktx',
             'threejs-journey-3.ktx',
-            'threejs-journey-4.ktx',
-            'threejs-journey-5.ktx',
-        ]
-    },
-    // {
-    //     title: 'Chartogne Taillet',
-    //     titleSmall: [ 'Chartogne', 'Taillet' ],
-    //     url: 'https://chartogne-taillet.com',
-    //     attributes:
-    //     {
-    //         at: 'Immersive Garden',
-    //         role: 'WebGL developer',
-    //         with: 'Rémi Tran'
-    //     },
-    //     distinctions: [ 'awwwards', 'cssda', 'fwa' ], // 'awwwards', 'fwa', 'cssda'
-    //     images:
-    //     [
-    //         'chartogne-taillet-1.ktx',
-    //         'chartogne-taillet-2.ktx',
-    //         'chartogne-taillet-3.ktx',
-    //     ]
-    // },
-    {
-        title: 'Bonhomme | 10 ans',
-        titleSmall: [ 'Bonhomme', '10 ans' ],
-        url: 'https://anniversary.bonhommeparis.com',
-        attributes:
-        {
-            role: 'WebGL developer',
-            with: 'Bonhomme Paris'
-        },
-        distinctions: [ 'awwwards', 'fwa' ],
-        images:
-        [
-            'bonhomme-10-ans-1.ktx',
-            'bonhomme-10-ans-2.ktx',
-            'bonhomme-10-ans-3.ktx',
         ]
     },
     {
-        title: 'Madbox',
-        titleSmall: [ 'Madbox' ],
-        url: 'https://madbox.io',
+        title: 'Interactive Portfolios',
+        titleSmall: [ 'Interactive', 'Portfolios' ],
+        url: 'https://t.me/shibainuo',
         attributes:
         {
-            role: 'WebGL developer',
-            at: 'Hervé Studio',
-            with: 'Lei Xing'
+            role: [ 'Full Creative Coding' ],
+            with: [ 'Three.js / WebGPU' ]
         },
-        distinctions: [ 'awwwards' ],
+        distinctions: [ ],
         images:
         [
             'madbox-1.ktx',
@@ -72,51 +34,32 @@ export default [
         ]
     },
     {
-        title: 'Luni',
-        titleSmall: [ 'Luni' ],
-        url: 'https://www.luni.app',
+        title: 'WebGL Games & Demos',
+        titleSmall: [ 'WebGL', 'Games' ],
+        url: 'https://t.me/shibainuo',
         attributes:
         {
-            role: 'WebGL developer',
-            at: 'Hervé Studio',
-            with: 'Loïc Belaidremesal'
+            role: [ 'Game Dev' ],
+            with: [ 'Physics + Visuals' ]
         },
-        distinctions: [ 'awwwards', 'fwa' ],
+        distinctions: [ ],
         images:
         [
             'luni-1.ktx',
             'luni-2.ktx',
             'luni-3.ktx',
-            'luni-4.ktx',
         ]
     },
     {
-        title: 'Scout',
-        titleSmall: [ 'Scout' ],
-        url: 'https://scout-omega.vercel.app',
+        title: 'Brand Immersive Sites',
+        titleSmall: [ 'Brand', 'Immersive' ],
+        url: 'https://t.me/shibainuo',
         attributes:
         {
-            role: 'WebGL developer',
-            at: 'Hervé Studio'
+            role: [ 'Creative Tech' ],
+            with: [ 'Storytelling + Code' ]
         },
-        distinctions: [  ],
-        images:
-        [
-            'scout-1.ktx',
-            'scout-2.ktx',
-            'scout-3.ktx',
-        ]
-    },
-    {
-        title: 'Prior Holdings',
-        titleSmall: [ 'Prio', 'Holdings' ],
-        url: 'https://prior.co.jp/discover/en',
-        attributes:
-        {
-            role: [ 'Front developer', 'WebGL developer' ],
-            at: 'Immersive Garden'
-        },
-        distinctions: [ 'awwwards', 'cssda', 'fwa' ],
+        distinctions: [ ],
         images:
         [
             'prior-1.ktx',
@@ -125,38 +68,20 @@ export default [
         ]
     },
     {
-        title: 'Orano',
-        titleSmall:  'Orano',
-        url: 'https://www.orano.group/experience/innovation/en',
+        title: 'Order Your Project',
+        titleSmall: [ 'Order', 'Project' ],
+        url: 'https://t.me/shibainuo',
         attributes:
         {
-            role: [ 'Front developer', 'WebGL developer' ],
-            at: 'Immersive Garden'
+            role: [ 'Available for Hire' ],
+            with: [ 'Message on Telegram' ]
         },
-        distinctions: [ 'awwwards', 'cssda', 'fwa' ],
+        distinctions: [ ],
         images:
         [
-            'orano-1.ktx',
-            'orano-2.ktx',
-            'orano-3.ktx',
-        ]
-    },
-    {
-        title: 'Citrix / Redbull',
-        titleSmall: ['Citrix', 'Redbull'],
-        url: 'https://thenewmobileworkforce.imm-g-prod.com',
-        attributes:
-        {
-            role: [ 'WebGL developer' ],
-            at: 'Immersive Garden',
-            with: [ 'Damien Doussaud', 'Quentin Leclercq' ]
-        },
-        distinctions: [ 'awwwards', 'cssda', 'fwa' ],
-        images:
-        [
-            'citrix-redbull-1.ktx',
-            'citrix-redbull-2.ktx',
-            'citrix-redbull-3.ktx',
+            'scout-1.ktx',
+            'scout-2.ktx',
+            'scout-3.ktx',
         ]
     }
 ]
