@@ -1,0 +1,12 @@
+nohup: ignoring input
+
+> reza-nabavi-folio@0.0.0 dev
+> vite --mode development
+
+
+  VITE v7.3.7  ready in 276 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: http://45.146.90.110:5173/
+  ➜  Network: http://172.17.0.1:5173/
+  ➜  Network: http://172.28.0.1:5173/
