@@ -1,5 +1,5 @@
 {
-  "name": "bruno-simon-folio-2025",
+  "name": "reza-nabavi-folio",
   "version": "0.0.0",
   "main": "index.js",
   "type": "module",
@@ -9,9 +9,9 @@
     "preview": "vite preview",
     "compress": "node scripts/compress.js static/"
   },
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": "Reza Nabavi",
+  "license": "MIT",
+  "description": "Reza Nabavi's creative 3D portfolio",
   "dependencies": {
     "@dimforge/rapier3d": "^0.17.3",
     "@gltf-transform/cli": "^4.1.0",
