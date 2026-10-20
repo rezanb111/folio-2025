@@ -15,13 +15,7 @@ export default {
     build: {
         outDir: '../dist',
         emptyOutDir: true,
-        sourcemap: false,
-        target: 'esnext',
-        chunkSizeWarningLimit: 5000
-    },
-    assetsInclude: ['**/*.wasm'],
-    optimizeDeps: {
-        exclude: ['@dimforge/rapier3d']
+        sourcemap: false
     },
     plugins: [
         wasm(),
