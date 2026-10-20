@@ -10,20 +10,14 @@ export default {
     publicDir: '../static/',
     base: './',
     server: {
-        host: '0.0.0.0',
-        port: 5173,
-        open: false,
-        watch: {
-            usePolling: true,
-            interval: 1000
-        }
+        host: true,
+        open: false
     },
     build: {
         outDir: '../dist',
         emptyOutDir: true,
         sourcemap: false,
-        target: 'esnext',
-        assetsInlineLimit: 0
+        target: 'esnext'
     },
     assetsInclude: ['**/*.wasm'],
     optimizeDeps: {
@@ -33,6 +27,6 @@ export default {
         wasm(),
         topLevelAwait(),
         restart({ restart: [ '../static/**' ] }),
-        nodePolyfills(),
+        nodePolyfills()
     ]
 }
