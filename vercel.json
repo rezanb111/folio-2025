@@ -2,6 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
   "installCommand": "npm install --force",
-  "buildCommand": "curl -fsSL https://raw.githubusercontent.com/brunosimon/folio-2025/main/sources/index.html -o sources/index.html && node scripts/personalize-index.mjs && npm run build",
+  "buildCommand": "node scripts/fetch-and-personalize.mjs && npm run build",
   "outputDirectory": "dist"
 }
