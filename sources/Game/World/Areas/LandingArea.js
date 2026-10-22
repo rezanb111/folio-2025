@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu'
-import { color, float, Fn, instancedArray, mix, normalWorld, positionGeometry, step, texture, uniform, uv, vec2, vec3, vec4 } from 'three/tsl'
+import { color, float, Fn, instancedArray, step, texture, uniform, uv } from 'three/tsl'
 import { Inputs } from '../../Inputs/Inputs.js'
 import { InteractivePoints } from '../../InteractivePoints.js'
 import { Area } from './Area.js'
@@ -31,17 +31,19 @@ export class LandingArea extends Area
 
         for(const reference of references)
         {
-            // Hide original Bruno letter meshes (model + object system visual)
+            // Hide Bruno Simon letter geometry
             reference.visible = false
-            reference.traverse?.((child) => { child.visible = false })
+            if(typeof reference.traverse === 'function')
+            {
+                reference.traverse((child) => { child.visible = false })
+            }
 
-            const linked = reference.userData?.object
-            if(linked?.visual?.object3D)
+            const linked = reference.userData && reference.userData.object
+            if(linked && linked.visual && linked.visual.object3D)
                 linked.visual.object3D.visible = false
 
-            // Keep physics collision + hit sound
-            const physical = linked?.physical
-            if(physical?.colliders?.[0])
+            const physical = linked && linked.physical
+            if(physical && physical.colliders && physical.colliders[0])
             {
                 physical.colliders[0].setActiveEvents(this.game.RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS)
                 physical.colliders[0].setContactForceEventThreshold(5)
@@ -56,7 +58,6 @@ export class LandingArea extends Area
             worldPositions.push(p)
         }
 
-        // Place REZA NABAVI plate where the old letters were
         const box = new THREE.Box3().setFromPoints(worldPositions)
         const center = box.getCenter(new THREE.Vector3())
         const size = box.getSize(new THREE.Vector3())
@@ -66,23 +67,17 @@ export class LandingArea extends Area
         canvas.height = 512
         const ctx = canvas.getContext('2d')
         ctx.clearRect(0, 0, canvas.width, canvas.height)
-
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
         ctx.font = '900 240px Nunito, Arial Black, sans-serif'
-
-        // Soft shadow
         ctx.fillStyle = 'rgba(20, 10, 40, 0.45)'
         ctx.fillText('REZA NABAVI', canvas.width / 2 + 10, canvas.height / 2 + 12)
-
-        // Main fill — purple tone matching the scene letters
         ctx.fillStyle = '#d8c8ff'
         ctx.fillText('REZA NABAVI', canvas.width / 2, canvas.height / 2)
 
         const map = new THREE.CanvasTexture(canvas)
         map.colorSpace = THREE.SRGBColorSpace
         map.needsUpdate = true
-        map.anisotropy = 8
 
         const material = new MeshDefaultMaterial({
             colorNode: texture(map, uv()),
@@ -103,7 +98,6 @@ export class LandingArea extends Area
         mesh.position.copy(center)
         mesh.position.y += 0.12
 
-        // Align with the diagonal of the old letter row
         const first = worldPositions[0]
         const last = worldPositions[worldPositions.length - 1]
         const angle = Math.atan2(last.z - first.z, last.x - first.x)
@@ -116,7 +110,6 @@ export class LandingArea extends Area
 
     setKiosk()
     {
-        // Interactive point
         const interactivePoint = this.game.interactivePoints.create(
             this.references.items.get('kioskInteractivePoint')[0].position,
             'Map',
@@ -144,7 +137,6 @@ export class LandingArea extends Area
 
     setControls()
     {
-        // Interactive point
         const interactivePoint = this.game.interactivePoints.create(
             this.references.items.get('controlsInteractivePoint')[0].position,
             'Controls',
@@ -170,7 +162,6 @@ export class LandingArea extends Area
             }
         )
 
-        // Menu instance
         const menuInstance = this.game.menu.items.get('controls')
 
         menuInstance.events.on('close', () =>
@@ -193,7 +184,6 @@ export class LandingArea extends Area
     {
         const position = this.references.items.get('bonfireHashes')[0].position
 
-        // Particles
         let particles = null
         {
             const emissiveMaterial = this.game.materials.getFromName('emissiveOrangeRadialGradient')
@@ -206,13 +196,11 @@ export class LandingArea extends Area
             for(let i = 0; i < count; i++)
             {
                 const i3 = i * 3
-    
                 const angle = Math.PI * 2 * Math.random()
                 const radius = Math.pow(Math.random(), 1.5) * 1
                 positions[i3 + 0] = Math.cos(angle) * radius
                 positions[i3 + 1] = Math.random()
                 positions[i3 + 2] = Math.sin(angle) * radius
-    
                 scales[i] = 0.02 + Math.random() * 0.06
             }
             
@@ -228,13 +216,10 @@ export class LandingArea extends Area
             {
                 const newPosition = positionAttribute.toVar()
                 progress.assign(newPosition.y.add(this.localTime.mul(newPosition.y)).fract())
-    
                 newPosition.y.assign(progress.mul(elevation))
                 newPosition.xz.addAssign(this.game.wind.direction.mul(progress))
-    
                 const progressHide = step(0.8, progress).mul(100)
                 newPosition.y.addAssign(progressHide)
-                
                 return newPosition
             })()
             material.scaleNode = Fn(() =>
@@ -244,7 +229,6 @@ export class LandingArea extends Area
             })()
     
             const geometry = new THREE.CircleGeometry(0.5, 8)
-    
             particles = new THREE.Mesh(geometry, material)
             particles.visible = false
             particles.position.copy(position)
@@ -252,20 +236,13 @@ export class LandingArea extends Area
             this.game.scene.add(particles)
         }
 
-        // Hashes
         {
             const alphaNode = Fn(() =>
             {
                 const baseUv = uv(1)
                 const distanceToCenter = baseUv.sub(0.5).length()
-    
-                const voronoi = texture(
-                    this.game.noises.voronoi,
-                    baseUv
-                ).g
-    
+                const voronoi = texture(this.game.noises.voronoi, baseUv).g
                 voronoi.subAssign(distanceToCenter.remap(0, 0.5, 0.3, 0))
-    
                 return voronoi
             })()
     
@@ -280,11 +257,9 @@ export class LandingArea extends Area
             mesh.material = material
         }
 
-        // Burn
         const burn = this.references.items.get('bonfireBurn')[0]
         burn.visible = false
 
-        // Interactive point
         this.game.interactivePoints.create(
             this.references.items.get('bonfireInteractivePoint')[0].position,
             'Res(e)t',
@@ -293,7 +268,6 @@ export class LandingArea extends Area
             () =>
             {
                 this.game.reset()
-
                 gsap.delayedCall(2, () =>
                 {
                     particles.visible = true
@@ -303,7 +277,6 @@ export class LandingArea extends Area
                         particles.geometry.boundingSphere.center.y = 2
                         particles.geometry.boundingSphere.radius = 2
                     })
-
                     this.game.audio.groups.get('campfire').items[0].positions.push(position)
                 })
             },
