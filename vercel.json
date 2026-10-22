@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
-  "installCommand": "rm -f package-lock.json && npm install --force",
-  "buildCommand": "NODE_OPTIONS=--max-old-space-size=8192 npm run build",
+  "installCommand": "npm install --force",
+  "buildCommand": "npm run build",
   "outputDirectory": "dist"
 }
