@@ -70,21 +70,17 @@ export class Map
 
             const element = document.createElement('div')
             element.classList.add('location')
+            element.style.left = `${(mapPosition.x + item.offset.x) * 100}%`
+            element.style.top = `${(mapPosition.y + item.offset.y) * 100}%`
             element.innerHTML = html
-            element.style.left = `${(mapPosition.x + item.offset.x)* 100}%`
-            element.style.top = `${(mapPosition.y + item.offset.y)* 100}%`
-            element.style.zIndex = Math.round(mapPosition.y * 1000)
-            
-            this.element.append(element)
 
             element.addEventListener('click', () =>
             {
-                this.game.player.respawn(item.respawnName, () =>
-                {
-                    this.game.view.focusPoint.isTracking = true
-                })
                 this.game.modals.close()
+                this.game.respawns.use(item.respawnName)
             })
+
+            this.element.append(element)
         }
     }
     
@@ -103,6 +99,7 @@ export class Map
 
         this.texture.element.addEventListener('load', () =>
         {
+            this.patchMapName(this.texture.element)
             this.texture.element.classList.add('is-visible')
         })
         
@@ -117,6 +114,40 @@ export class Map
                 this.texture.element.src = url
             }
         }
+    }
+
+    patchMapName(img)
+    {
+        try
+        {
+            if(img.dataset.patched === '1')
+                return
+
+            const canvas = document.createElement('canvas')
+            canvas.width = img.naturalWidth || 1024
+            canvas.height = img.naturalHeight || 1024
+            const ctx = canvas.getContext('2d')
+            ctx.drawImage(img, 0, 0)
+
+            const w = canvas.width, h = canvas.height
+            const x = w * 0.28, y = h * 0.42, pw = w * 0.44, ph = h * 0.14
+            ctx.fillStyle = 'rgba(30, 35, 28, 0.92)'
+            ctx.fillRect(x, y, pw, ph)
+
+            ctx.fillStyle = '#ffffff'
+            ctx.font = `bold ${Math.floor(h * 0.035)}px Nunito, Arial, sans-serif`
+            ctx.textAlign = 'center'
+            ctx.textBaseline = 'middle'
+            ctx.fillText('REZA NABAVI', w * 0.5, y + ph * 0.42)
+
+            ctx.fillStyle = '#D66FFF'
+            ctx.font = `bold ${Math.floor(h * 0.02)}px Nunito, Arial, sans-serif`
+            ctx.fillText('@shibainuo', w * 0.5, y + ph * 0.72)
+
+            img.dataset.patched = '1'
+            img.src = canvas.toDataURL('image/png')
+        }
+        catch(e) {}
     }
 
     setTrigger()
@@ -181,13 +212,9 @@ export class Map
             this.player.roundedPosition.x = playerRoundedX
             this.player.roundedPosition.y = playerRoundedY
 
-            const playerCoordinates = this.worldToMap(this.player.roundedPosition)
-            const x = Math.round(playerCoordinates.x * 1000) / 10
-            const y = Math.round(playerCoordinates.y * 1000) / 10
-
-            this.player.element.style.left = `${x}%`
-            this.player.element.style.top = `${y}%`
-            this.player.element.style.transform = `rotate(${-this.game.physicalVehicle.yRotation}rad)`
+            const mapPosition = this.worldToMap(this.game.player.position)
+            this.player.element.style.left = `${mapPosition.x * 100}%`
+            this.player.element.style.top = `${mapPosition.y * 100}%`
         }
     }
 }
