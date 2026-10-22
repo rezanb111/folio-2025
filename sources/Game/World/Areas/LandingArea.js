@@ -15,7 +15,6 @@ export class LandingArea extends Area
         this.localTime = uniform(0)
 
         this.setLetters()
-        this.setNamePlate()
         this.setKiosk()
         this.setControls()
         this.setBonfire()
@@ -25,60 +24,115 @@ export class LandingArea extends Area
     setLetters()
     {
         const references = this.references.items.get('letters')
-        if(!references) return
+        if(!references || !references.length)
+            return
+
+        const center = new THREE.Vector3()
+        let count = 0
 
         for(const reference of references)
         {
-            // Hide original Bruno Simon 3D letters
+            // Hide Bruno Simon letter meshes
             reference.visible = false
-            if(reference.userData?.object)
+
+            const worldPos = new THREE.Vector3()
+            reference.getWorldPosition(worldPos)
+            center.add(worldPos)
+            count++
+
+            const obj = reference.userData?.object
+            if(obj)
             {
-                const obj = reference.userData.object
-                if(obj.visual) obj.visual.visible = false
-                if(obj.physical?.body)
+                if(obj.visual)
+                    obj.visual.visible = false
+
+                try
                 {
-                    try { obj.physical.body.setEnabled(false) } catch(e) {}
+                    if(obj.physical?.body)
+                        obj.physical.body.setEnabled(false)
+                    if(obj.physical?.colliders)
+                    {
+                        for(const c of obj.physical.colliders)
+                        {
+                            try { c.setEnabled(false) } catch(e) {}
+                        }
+                    }
                 }
+                catch(e) {}
             }
         }
+
+        if(count > 0)
+            center.divideScalar(count)
+        else
+            center.set(0, 1.5, -8)
+
+        this.createNamePlate(center)
     }
 
-    setNamePlate()
+    createNamePlate(center)
     {
-        // Canvas texture name plate: REZA NABAVI
-        const canvas = document.createElement('canvas')
-        canvas.width = 1024
-        canvas.height = 256
-        const ctx = canvas.getContext('2d')
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        ctx.fillStyle = '#ffffff'
-        ctx.font = 'bold 120px Nunito, Arial, sans-serif'
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        ctx.fillText('REZA NABAVI', canvas.width / 2, canvas.height / 2 - 20)
-        ctx.font = 'bold 48px Nunito, Arial, sans-serif'
-        ctx.fillStyle = '#D66FFF'
-        ctx.fillText('🇮🇷  @shibainuo', canvas.width / 2, canvas.height / 2 + 70)
+        const makeTexture = (main, sub) =>
+        {
+            const canvas = document.createElement('canvas')
+            canvas.width = 2048
+            canvas.height = 512
+            const ctx = canvas.getContext('2d')
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-        const texture = new THREE.CanvasTexture(canvas)
-        texture.colorSpace = THREE.SRGBColorSpace
+            ctx.fillStyle = '#FFFFFF'
+            ctx.font = '900 200px Nunito, Arial Black, Arial, sans-serif'
+            ctx.textAlign = 'center'
+            ctx.textBaseline = 'middle'
+            ctx.shadowColor = 'rgba(0,0,0,0.5)'
+            ctx.shadowBlur = 20
+            ctx.shadowOffsetY = 10
+            ctx.fillText(main, canvas.width / 2, canvas.height / 2 - 30)
 
-        const material = new THREE.MeshBasicMaterial({
-            map: texture,
-            transparent: true,
-            side: THREE.DoubleSide,
-            depthWrite: false
-        })
+            if(sub)
+            {
+                ctx.shadowBlur = 0
+                ctx.shadowOffsetY = 0
+                ctx.fillStyle = '#D66FFF'
+                ctx.font = '700 70px Nunito, Arial, sans-serif'
+                ctx.fillText(sub, canvas.width / 2, canvas.height / 2 + 120)
+            }
 
-        const geometry = new THREE.PlaneGeometry(8, 2)
-        const mesh = new THREE.Mesh(geometry, material)
+            const map = new THREE.CanvasTexture(canvas)
+            map.colorSpace = THREE.SRGBColorSpace
+            map.needsUpdate = true
+            return map
+        }
 
-        // Place near landing start (approximate original letters position)
-        mesh.position.set(0, 2.2, -6)
-        mesh.rotation.y = 0
+        const map = makeTexture('REZA NABAVI', '@shibainuo')
 
+        // WebGPU-friendly material
+        const material = new THREE.MeshBasicNodeMaterial()
+        material.colorNode = texture(map)
+        material.transparent = true
+        material.depthWrite = false
+        material.side = THREE.DoubleSide
+
+        // Standing plate
+        const mesh = new THREE.Mesh(new THREE.PlaneGeometry(16, 4), material)
+        mesh.position.set(center.x, Math.max(center.y, 0.5) + 2.5, center.z)
+        mesh.lookAt(center.x, mesh.position.y, center.z + 20)
         this.game.scene.add(mesh)
         this.namePlate = mesh
+
+        // Ground plate (flat)
+        const groundMap = makeTexture('REZA NABAVI', null)
+        const groundMat = new THREE.MeshBasicNodeMaterial()
+        groundMat.colorNode = texture(groundMap)
+        groundMat.transparent = true
+        groundMat.depthWrite = false
+        groundMat.side = THREE.DoubleSide
+
+        const ground = new THREE.Mesh(new THREE.PlaneGeometry(18, 4.5), groundMat)
+        ground.position.set(center.x, 0.12, center.z)
+        ground.rotation.x = -Math.PI / 2
+        this.game.scene.add(ground)
+        this.namePlateGround = ground
     }
 
     setKiosk()
