@@ -1,7 +1,6 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "vite",
-  "installCommand": "npm install --force",
-  "buildCommand": "NODE_OPTIONS=--max-old-space-size=8192 npm run build",
+  "framework": null,
+  "installCommand": "npm install --legacy-peer-deps",
+  "buildCommand": "npx vite build --mode production",
   "outputDirectory": "dist"
 }

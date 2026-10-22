@@ -3,9 +3,6 @@
   "version": "0.0.0",
   "main": "index.js",
   "type": "module",
-  "engines": {
-    "node": ">=22.0.0"
-  },
   "scripts": {
     "dev": "vite --mode development",
     "build": "vite build --mode production",
@@ -13,7 +10,7 @@
   },
   "author": "Reza Nabavi",
   "license": "MIT",
-  "description": "Reza Nabavi's creative 3D portfolio",
+  "description": "Reza Nabavi portfolio",
   "dependencies": {
     "@dimforge/rapier3d": "^0.17.3",
     "@tweakpane/plugin-camerakit": "^0.3.0",
@@ -34,7 +31,6 @@
     "uuid": "^11.1.0",
     "vite": "^7.2.4",
     "vite-plugin-node-polyfills": "^0.24.0",
-    "vite-plugin-restart": "^0.4.1",
     "vite-plugin-top-level-await": "^1.6.0",
     "vite-plugin-wasm": "^3.5.0"
   }
