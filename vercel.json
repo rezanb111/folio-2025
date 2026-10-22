@@ -1,6 +1,6 @@
 {
   "framework": null,
-  "installCommand": "npm install --legacy-peer-deps",
+  "installCommand": "npm install --legacy-peer-deps && npm rebuild @swc/core esbuild",
   "buildCommand": "npx vite build --mode production",
   "outputDirectory": "dist"
 }
