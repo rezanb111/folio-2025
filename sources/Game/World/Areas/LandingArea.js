@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu'
-import { color, float, Fn, instancedArray, step, texture, uniform, uv } from 'three/tsl'
+import { color, float, Fn, instancedArray, mix, normalWorld, positionGeometry, step, texture, uniform, uv, vec2, vec3, vec4 } from 'three/tsl'
 import { Inputs } from '../../Inputs/Inputs.js'
 import { InteractivePoints } from '../../InteractivePoints.js'
 import { Area } from './Area.js'
@@ -24,86 +24,69 @@ export class LandingArea extends Area
     setLetters()
     {
         const references = this.references.items.get('letters')
-        if(!references || references.length === 0)
-            return
-
-        const worldPositions = []
 
         for(const reference of references)
         {
-            // Hide Bruno Simon letter geometry
+            // Hide original Bruno Simon letters
             reference.visible = false
-            if(typeof reference.traverse === 'function')
+            if(reference.userData && reference.userData.object && reference.userData.object.visual && reference.userData.object.visual.object3D)
             {
-                reference.traverse((child) => { child.visible = false })
+                reference.userData.object.visual.object3D.visible = false
             }
 
-            const linked = reference.userData && reference.userData.object
-            if(linked && linked.visual && linked.visual.object3D)
-                linked.visual.object3D.visible = false
-
-            const physical = linked && linked.physical
-            if(physical && physical.colliders && physical.colliders[0])
+            const physical = reference.userData.object.physical
+            physical.colliders[0].setActiveEvents(this.game.RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS)
+            physical.colliders[0].setContactForceEventThreshold(5)
+            physical.onCollision = (force, position) =>
             {
-                physical.colliders[0].setActiveEvents(this.game.RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS)
-                physical.colliders[0].setContactForceEventThreshold(5)
-                physical.onCollision = (force, position) =>
-                {
-                    this.game.audio.groups.get('hitBrick').playRandomNext(force, position)
-                }
+                this.game.audio.groups.get('hitBrick').playRandomNext(force, position)
             }
-
-            const p = new THREE.Vector3()
-            reference.getWorldPosition(p)
-            worldPositions.push(p)
         }
 
-        const box = new THREE.Box3().setFromPoints(worldPositions)
-        const center = box.getCenter(new THREE.Vector3())
-        const size = box.getSize(new THREE.Vector3())
+        // REZA NABAVI floating label near spawn
+        try
+        {
+            this.addNamePlate(references)
+        }
+        catch(e)
+        {
+            console.warn('Name plate failed', e)
+        }
+    }
+
+    addNamePlate(references)
+    {
+        if(!references || !references.length)
+            return
+
+        const first = references[0]
+        const pos = new THREE.Vector3()
+        first.getWorldPosition(pos)
 
         const canvas = document.createElement('canvas')
-        canvas.width = 2048
-        canvas.height = 512
+        canvas.width = 1024
+        canvas.height = 256
         const ctx = canvas.getContext('2d')
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.fillStyle = '#d8c8ff'
+        ctx.font = 'bold 120px sans-serif'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
-        ctx.font = '900 240px Nunito, Arial Black, sans-serif'
-        ctx.fillStyle = 'rgba(20, 10, 40, 0.45)'
-        ctx.fillText('REZA NABAVI', canvas.width / 2 + 10, canvas.height / 2 + 12)
-        ctx.fillStyle = '#d8c8ff'
-        ctx.fillText('REZA NABAVI', canvas.width / 2, canvas.height / 2)
+        ctx.fillText('REZA NABAVI', 512, 128)
 
         const map = new THREE.CanvasTexture(canvas)
         map.colorSpace = THREE.SRGBColorSpace
-        map.needsUpdate = true
 
-        const material = new MeshDefaultMaterial({
-            colorNode: texture(map, uv()),
-            alphaNode: texture(map, uv()).a,
-            hasWater: false,
-            hasLightBounce: false,
+        const material = new THREE.MeshBasicNodeMaterial({
+            map: map,
+            transparent: true,
+            depthWrite: false,
+            side: THREE.DoubleSide
         })
-        material.transparent = true
-        material.depthWrite = false
-        material.side = THREE.DoubleSide
 
-        const span = Math.max(size.x, size.z, 8)
-        const width = span * 1.25
-        const height = width * 0.28
-        const geometry = new THREE.PlaneGeometry(width, height)
-        const mesh = new THREE.Mesh(geometry, material)
-
-        mesh.position.copy(center)
-        mesh.position.y += 0.12
-
-        const first = worldPositions[0]
-        const last = worldPositions[worldPositions.length - 1]
-        const angle = Math.atan2(last.z - first.z, last.x - first.x)
-        mesh.rotation.x = -Math.PI / 2
-        mesh.rotation.z = -angle
-
+        const mesh = new THREE.Mesh(new THREE.PlaneGeometry(12, 3), material)
+        mesh.position.copy(pos)
+        mesh.position.y += 1.5
+        mesh.rotation.x = -Math.PI * 0.35
         this.game.scene.add(mesh)
         this.namePlate = mesh
     }
