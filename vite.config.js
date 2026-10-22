@@ -15,7 +15,8 @@ export default {
     build: {
         outDir: '../dist',
         emptyOutDir: true,
-        sourcemap: false
+        sourcemap: false,
+        chunkSizeWarningLimit: 5000
     },
     plugins: [
         wasm(),
