@@ -15,6 +15,7 @@ export class LandingArea extends Area
         this.localTime = uniform(0)
 
         this.setLetters()
+        this.setNamePlate()
         this.setKiosk()
         this.setControls()
         this.setBonfire()
@@ -24,17 +25,60 @@ export class LandingArea extends Area
     setLetters()
     {
         const references = this.references.items.get('letters')
+        if(!references) return
 
         for(const reference of references)
         {
-            const physical = reference.userData.object.physical
-            physical.colliders[0].setActiveEvents(this.game.RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS)
-            physical.colliders[0].setContactForceEventThreshold(5)
-            physical.onCollision = (force, position) =>
+            // Hide original Bruno Simon 3D letters
+            reference.visible = false
+            if(reference.userData?.object)
             {
-                this.game.audio.groups.get('hitBrick').playRandomNext(force, position)
+                const obj = reference.userData.object
+                if(obj.visual) obj.visual.visible = false
+                if(obj.physical?.body)
+                {
+                    try { obj.physical.body.setEnabled(false) } catch(e) {}
+                }
             }
         }
+    }
+
+    setNamePlate()
+    {
+        // Canvas texture name plate: REZA NABAVI
+        const canvas = document.createElement('canvas')
+        canvas.width = 1024
+        canvas.height = 256
+        const ctx = canvas.getContext('2d')
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.fillStyle = '#ffffff'
+        ctx.font = 'bold 120px Nunito, Arial, sans-serif'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText('REZA NABAVI', canvas.width / 2, canvas.height / 2 - 20)
+        ctx.font = 'bold 48px Nunito, Arial, sans-serif'
+        ctx.fillStyle = '#D66FFF'
+        ctx.fillText('🇮🇷  @shibainuo', canvas.width / 2, canvas.height / 2 + 70)
+
+        const texture = new THREE.CanvasTexture(canvas)
+        texture.colorSpace = THREE.SRGBColorSpace
+
+        const material = new THREE.MeshBasicMaterial({
+            map: texture,
+            transparent: true,
+            side: THREE.DoubleSide,
+            depthWrite: false
+        })
+
+        const geometry = new THREE.PlaneGeometry(8, 2)
+        const mesh = new THREE.Mesh(geometry, material)
+
+        // Place near landing start (approximate original letters position)
+        mesh.position.set(0, 2.2, -6)
+        mesh.rotation.y = 0
+
+        this.game.scene.add(mesh)
+        this.namePlate = mesh
     }
 
     setKiosk()

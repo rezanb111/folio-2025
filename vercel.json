@@ -1,6 +1,6 @@
 {
   "framework": null,
   "installCommand": "npm install --legacy-peer-deps",
-  "buildCommand": "npx vite build --mode production",
+  "buildCommand": "node scripts/personalize.mjs && npx vite build --mode production",
   "outputDirectory": "dist"
 }
