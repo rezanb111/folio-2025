@@ -29,24 +29,24 @@ const reps = [
 
 for (const [a, b] of reps) h = h.split(a).join(b)
 
-// Fix broken options.webp (restore from jsDelivr Bruno) + cover name with overlay
-h = h.replace(
-  'src="ui/previews/options.webp"',
-  'src="https://cdn.jsdelivr.net/gh/brunosimon/folio-2025@main/static/ui/previews/options.webp"'
-)
-
-const overlay = `<div class="js-preview preview options-preview" style="position:relative;overflow:hidden;">
-                            <img class="background" src="https://cdn.jsdelivr.net/gh/brunosimon/folio-2025@main/static/ui/previews/options.webp" loading="lazy" draggable="false">
-                            <div style="position:absolute;left:6%;right:6%;top:26%;height:30%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(22,28,20,0.9);border-radius:14px;pointer-events:none;z-index:6;">
-                                <div style="color:#fff;font-weight:900;font-size:clamp(16px,4.2vw,32px);font-family:Nunito,Arial,sans-serif;letter-spacing:0.05em;text-shadow:0 2px 10px rgba(0,0,0,0.55);">REZA NABAVI</div>
-                                <div style="color:#D66FFF;font-weight:700;font-size:clamp(11px,2.1vw,15px);font-family:Nunito,Arial,sans-serif;margin-top:6px;">🇮🇷 @shibainuo</div>
+// COMPLETELY replace options preview — no Bruno image at all
+const newPreview = `<div class="js-preview preview options-preview" style="position:relative;overflow:hidden;background:linear-gradient(145deg,#1a1528 0%,#2d1f4e 45%,#3b2066 100%);display:flex;align-items:center;justify-content:center;">
+                            <div style="text-align:center;padding:24px;">
+                                <div style="color:#fff;font-weight:900;font-size:clamp(22px,5vw,40px);font-family:Nunito,Arial,sans-serif;letter-spacing:0.06em;text-shadow:0 4px 20px rgba(214,111,255,0.45);">REZA NABAVI</div>
+                                <div style="color:#D66FFF;font-weight:700;font-size:clamp(13px,2.5vw,18px);font-family:Nunito,Arial,sans-serif;margin-top:10px;">🇮🇷 Creative Developer</div>
+                                <div style="color:rgba(255,255,255,0.75);font-weight:600;font-size:clamp(12px,2vw,15px);font-family:Nunito,Arial,sans-serif;margin-top:8px;">Telegram @shibainuo</div>
                             </div>
                         </div>`
 
 h = h.replace(
-  /<div class="js-preview preview options-preview"[^>]*>\s*<img class="background"[^>]*>\s*<\/div>/,
-  overlay
+  /<div class="js-preview preview options-preview"[^>]*>[\s\S]*?<\/div>/,
+  newPreview
 )
 
+// Also strip any leftover options.webp references in that block
+h = h.replace(/ui\/previews\/options\.webp/g, 'ui/previews/home.webp')
+
 writeFileSync(path, h)
-console.log('personalized', h.length, 'overlay', h.includes('REZA NABAVI') && h.includes('reza-name') || h.includes('@shibainuo'))
+console.log('personalized', h.length)
+console.log('has Bruno img in options?', /options-preview[\s\S]{0,200}options\.webp/.test(h))
+console.log('has REZA block', h.includes('REZA NABAVI'))
