@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "vite --mode development",
     "build": "vite build --mode production",
-    "preview": "vite preview",
-    "postinstall": "npm rebuild @swc/core esbuild || true"
+    "preview": "vite preview"
   },
   "author": "Reza Nabavi",
   "license": "MIT",
@@ -16,7 +15,6 @@
     "@dimforge/rapier3d": "^0.17.3",
     "@tweakpane/plugin-camerakit": "^0.3.0",
     "@tweakpane/plugin-essentials": "^0.2.1",
-    "@vitejs/plugin-basic-ssl": "^2.1.0",
     "camera-controls": "^3.1.2",
     "dotenv": "^17.2.3",
     "emoji-regex": "^10.4.0",
@@ -32,7 +30,6 @@
     "uuid": "^11.1.0",
     "vite": "^7.2.4",
     "vite-plugin-node-polyfills": "^0.24.0",
-    "vite-plugin-top-level-await": "^1.6.0",
     "vite-plugin-wasm": "^3.5.0"
   }
 }

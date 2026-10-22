@@ -1,6 +1,5 @@
 import 'dotenv/config'
 import wasm from 'vite-plugin-wasm'
-import topLevelAwait from 'vite-plugin-top-level-await'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 export default {
@@ -16,11 +15,14 @@ export default {
         outDir: '../dist',
         emptyOutDir: true,
         sourcemap: false,
+        target: 'esnext',
         chunkSizeWarningLimit: 5000
     },
     plugins: [
         wasm(),
-        topLevelAwait(),
         nodePolyfills()
-    ]
+    ],
+    optimizeDeps: {
+        exclude: ['@dimforge/rapier3d']
+    }
 }
