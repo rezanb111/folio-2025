@@ -60,7 +60,6 @@ export class Map
             const respawn = this.game.respawns.getByName(item.respawnName)
             const mapPosition = this.worldToMap(respawn.position)
 
-            // HTML
             const html = /* html */`
                 <div class="pin"></div>
                 <div class="name-container">
@@ -77,7 +76,10 @@ export class Map
             element.addEventListener('click', () =>
             {
                 this.game.modals.close()
-                this.game.respawns.use(item.respawnName)
+                this.game.player.respawn(item.respawnName, () =>
+                {
+                    this.game.modals.close()
+                })
             })
 
             this.element.append(element)
@@ -130,18 +132,18 @@ export class Map
             ctx.drawImage(img, 0, 0)
 
             const w = canvas.width, h = canvas.height
-            const x = w * 0.28, y = h * 0.42, pw = w * 0.44, ph = h * 0.14
-            ctx.fillStyle = 'rgba(30, 35, 28, 0.92)'
+            const x = w * 0.22, y = h * 0.38, pw = w * 0.56, ph = h * 0.18
+            ctx.fillStyle = 'rgba(28, 32, 26, 0.95)'
             ctx.fillRect(x, y, pw, ph)
 
             ctx.fillStyle = '#ffffff'
-            ctx.font = `bold ${Math.floor(h * 0.035)}px Nunito, Arial, sans-serif`
+            ctx.font = `bold ${Math.floor(h * 0.04)}px Nunito, Arial, sans-serif`
             ctx.textAlign = 'center'
             ctx.textBaseline = 'middle'
             ctx.fillText('REZA NABAVI', w * 0.5, y + ph * 0.42)
 
             ctx.fillStyle = '#D66FFF'
-            ctx.font = `bold ${Math.floor(h * 0.02)}px Nunito, Arial, sans-serif`
+            ctx.font = `bold ${Math.floor(h * 0.022)}px Nunito, Arial, sans-serif`
             ctx.fillText('@shibainuo', w * 0.5, y + ph * 0.72)
 
             img.dataset.patched = '1'
@@ -166,7 +168,6 @@ export class Map
 
     setInputs()
     {
-        // Inputs keyboard
         this.game.inputs.addActions([
             { name: 'map', categories: [ 'modal', 'menu', 'wandering' ], keys: [ 'Keyboard.m', 'Keyboard.KeyM' ] },
         ])
@@ -212,9 +213,13 @@ export class Map
             this.player.roundedPosition.x = playerRoundedX
             this.player.roundedPosition.y = playerRoundedY
 
-            const mapPosition = this.worldToMap(this.game.player.position)
-            this.player.element.style.left = `${mapPosition.x * 100}%`
-            this.player.element.style.top = `${mapPosition.y * 100}%`
+            const playerCoordinates = this.worldToMap(this.player.roundedPosition)
+            const x = Math.round(playerCoordinates.x * 1000) / 10
+            const y = Math.round(playerCoordinates.y * 1000) / 10
+
+            this.player.element.style.left = `${x}%`
+            this.player.element.style.top = `${y}%`
+            this.player.element.style.transform = `rotate(${-this.game.physicalVehicle.yRotation}rad)`
         }
     }
 }
