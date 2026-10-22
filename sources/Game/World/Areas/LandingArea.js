@@ -27,13 +27,6 @@ export class LandingArea extends Area
 
         for(const reference of references)
         {
-            // Hide original Bruno Simon letters
-            reference.visible = false
-            if(reference.userData && reference.userData.object && reference.userData.object.visual && reference.userData.object.visual.object3D)
-            {
-                reference.userData.object.visual.object3D.visible = false
-            }
-
             const physical = reference.userData.object.physical
             physical.colliders[0].setActiveEvents(this.game.RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS)
             physical.colliders[0].setContactForceEventThreshold(5)
@@ -42,53 +35,6 @@ export class LandingArea extends Area
                 this.game.audio.groups.get('hitBrick').playRandomNext(force, position)
             }
         }
-
-        // REZA NABAVI floating label near spawn
-        try
-        {
-            this.addNamePlate(references)
-        }
-        catch(e)
-        {
-            console.warn('Name plate failed', e)
-        }
-    }
-
-    addNamePlate(references)
-    {
-        if(!references || !references.length)
-            return
-
-        const first = references[0]
-        const pos = new THREE.Vector3()
-        first.getWorldPosition(pos)
-
-        const canvas = document.createElement('canvas')
-        canvas.width = 1024
-        canvas.height = 256
-        const ctx = canvas.getContext('2d')
-        ctx.fillStyle = '#d8c8ff'
-        ctx.font = 'bold 120px sans-serif'
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        ctx.fillText('REZA NABAVI', 512, 128)
-
-        const map = new THREE.CanvasTexture(canvas)
-        map.colorSpace = THREE.SRGBColorSpace
-
-        const material = new THREE.MeshBasicNodeMaterial({
-            map: map,
-            transparent: true,
-            depthWrite: false,
-            side: THREE.DoubleSide
-        })
-
-        const mesh = new THREE.Mesh(new THREE.PlaneGeometry(12, 3), material)
-        mesh.position.copy(pos)
-        mesh.position.y += 1.5
-        mesh.rotation.x = -Math.PI * 0.35
-        this.game.scene.add(mesh)
-        this.namePlate = mesh
     }
 
     setKiosk()
