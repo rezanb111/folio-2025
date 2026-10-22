@@ -23,8 +23,23 @@ export class LandingArea extends Area
 
     setLetters()
     {
-        const references = this.references.items.get('letters')
-        if(!references || !references.length)
+        // GLB reference name is refLettersPhysicalDynamic -> lettersPhysicalDynamic
+        let references =
+            this.references.items.get('lettersPhysicalDynamic') ||
+            this.references.items.get('letters') ||
+            []
+
+        if(!references.length)
+        {
+            // Fallback: find by name in model
+            this.model.traverse((child) =>
+            {
+                if(child.name && /letter/i.test(child.name))
+                    references.push(child)
+            })
+        }
+
+        if(!references.length)
             return
 
         const center = new THREE.Vector3()
@@ -32,8 +47,9 @@ export class LandingArea extends Area
 
         for(const reference of references)
         {
-            // Hide Bruno Simon letter meshes
+            // Hide every mesh in the letter hierarchy
             reference.visible = false
+            reference.traverse((c) => { c.visible = false })
 
             const worldPos = new THREE.Vector3()
             reference.getWorldPosition(worldPos)
@@ -43,9 +59,11 @@ export class LandingArea extends Area
             const obj = reference.userData?.object
             if(obj)
             {
-                if(obj.visual)
-                    obj.visual.visible = false
-
+                if(obj.visual?.object3D)
+                {
+                    obj.visual.object3D.visible = false
+                    obj.visual.object3D.traverse((c) => { c.visible = false })
+                }
                 try
                 {
                     if(obj.physical?.body)
@@ -62,10 +80,30 @@ export class LandingArea extends Area
             }
         }
 
+        // Also hide any objects.items whose source name matches letters
+        for(const object of this.objects.items)
+        {
+            const n = object.visual?.object3D?.name || ''
+            if(/letter/i.test(n))
+            {
+                if(object.visual?.object3D)
+                {
+                    object.visual.object3D.visible = false
+                    object.visual.object3D.traverse((c) => { c.visible = false })
+                }
+                try
+                {
+                    if(object.physical?.body)
+                        object.physical.body.setEnabled(false)
+                }
+                catch(e) {}
+            }
+        }
+
         if(count > 0)
             center.divideScalar(count)
         else
-            center.set(0, 1.5, -8)
+            center.set(0, 1.2, -8)
 
         this.createNamePlate(center)
     }
@@ -84,10 +122,10 @@ export class LandingArea extends Area
             ctx.font = '900 200px Nunito, Arial Black, Arial, sans-serif'
             ctx.textAlign = 'center'
             ctx.textBaseline = 'middle'
-            ctx.shadowColor = 'rgba(0,0,0,0.5)'
-            ctx.shadowBlur = 20
+            ctx.shadowColor = 'rgba(0,0,0,0.55)'
+            ctx.shadowBlur = 22
             ctx.shadowOffsetY = 10
-            ctx.fillText(main, canvas.width / 2, canvas.height / 2 - 30)
+            ctx.fillText(main, canvas.width / 2, canvas.height / 2 - (sub ? 30 : 0))
 
             if(sub)
             {
@@ -105,22 +143,18 @@ export class LandingArea extends Area
         }
 
         const map = makeTexture('REZA NABAVI', '@shibainuo')
-
-        // WebGPU-friendly material
         const material = new THREE.MeshBasicNodeMaterial()
         material.colorNode = texture(map)
         material.transparent = true
         material.depthWrite = false
         material.side = THREE.DoubleSide
 
-        // Standing plate
         const mesh = new THREE.Mesh(new THREE.PlaneGeometry(16, 4), material)
-        mesh.position.set(center.x, Math.max(center.y, 0.5) + 2.5, center.z)
+        mesh.position.set(center.x, Math.max(center.y, 0.5) + 2.2, center.z)
         mesh.lookAt(center.x, mesh.position.y, center.z + 20)
         this.game.scene.add(mesh)
         this.namePlate = mesh
 
-        // Ground plate (flat)
         const groundMap = makeTexture('REZA NABAVI', null)
         const groundMat = new THREE.MeshBasicNodeMaterial()
         groundMat.colorNode = texture(groundMap)
@@ -129,7 +163,7 @@ export class LandingArea extends Area
         groundMat.side = THREE.DoubleSide
 
         const ground = new THREE.Mesh(new THREE.PlaneGeometry(18, 4.5), groundMat)
-        ground.position.set(center.x, 0.12, center.z)
+        ground.position.set(center.x, 0.15, center.z)
         ground.rotation.x = -Math.PI / 2
         this.game.scene.add(ground)
         this.namePlateGround = ground
