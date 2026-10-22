@@ -28,5 +28,25 @@ const reps = [
 ]
 
 for (const [a, b] of reps) h = h.split(a).join(b)
+
+// Fix broken options.webp (restore from jsDelivr Bruno) + cover name with overlay
+h = h.replace(
+  'src="ui/previews/options.webp"',
+  'src="https://cdn.jsdelivr.net/gh/brunosimon/folio-2025@main/static/ui/previews/options.webp"'
+)
+
+const overlay = `<div class="js-preview preview options-preview" style="position:relative;overflow:hidden;">
+                            <img class="background" src="https://cdn.jsdelivr.net/gh/brunosimon/folio-2025@main/static/ui/previews/options.webp" loading="lazy" draggable="false">
+                            <div style="position:absolute;left:6%;right:6%;top:26%;height:30%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(22,28,20,0.9);border-radius:14px;pointer-events:none;z-index:6;">
+                                <div style="color:#fff;font-weight:900;font-size:clamp(16px,4.2vw,32px);font-family:Nunito,Arial,sans-serif;letter-spacing:0.05em;text-shadow:0 2px 10px rgba(0,0,0,0.55);">REZA NABAVI</div>
+                                <div style="color:#D66FFF;font-weight:700;font-size:clamp(11px,2.1vw,15px);font-family:Nunito,Arial,sans-serif;margin-top:6px;">🇮🇷 @shibainuo</div>
+                            </div>
+                        </div>`
+
+h = h.replace(
+  /<div class="js-preview preview options-preview"[^>]*>\s*<img class="background"[^>]*>\s*<\/div>/,
+  overlay
+)
+
 writeFileSync(path, h)
-console.log('personalized', h.length, 'Reza count', (h.match(/Reza Nabavi/g) || []).length)
+console.log('personalized', h.length, 'overlay', h.includes('REZA NABAVI') && h.includes('reza-name') || h.includes('@shibainuo'))
