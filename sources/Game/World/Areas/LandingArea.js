@@ -24,17 +24,94 @@ export class LandingArea extends Area
     setLetters()
     {
         const references = this.references.items.get('letters')
+        if(!references || references.length === 0)
+            return
+
+        const worldPositions = []
 
         for(const reference of references)
         {
-            const physical = reference.userData.object.physical
-            physical.colliders[0].setActiveEvents(this.game.RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS)
-            physical.colliders[0].setContactForceEventThreshold(5)
-            physical.onCollision = (force, position) =>
+            // Hide original Bruno letter meshes (model + object system visual)
+            reference.visible = false
+            reference.traverse?.((child) => { child.visible = false })
+
+            const linked = reference.userData?.object
+            if(linked?.visual?.object3D)
+                linked.visual.object3D.visible = false
+
+            // Keep physics collision + hit sound
+            const physical = linked?.physical
+            if(physical?.colliders?.[0])
             {
-                this.game.audio.groups.get('hitBrick').playRandomNext(force, position)
+                physical.colliders[0].setActiveEvents(this.game.RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS)
+                physical.colliders[0].setContactForceEventThreshold(5)
+                physical.onCollision = (force, position) =>
+                {
+                    this.game.audio.groups.get('hitBrick').playRandomNext(force, position)
+                }
             }
+
+            const p = new THREE.Vector3()
+            reference.getWorldPosition(p)
+            worldPositions.push(p)
         }
+
+        // Place REZA NABAVI plate where the old letters were
+        const box = new THREE.Box3().setFromPoints(worldPositions)
+        const center = box.getCenter(new THREE.Vector3())
+        const size = box.getSize(new THREE.Vector3())
+
+        const canvas = document.createElement('canvas')
+        canvas.width = 2048
+        canvas.height = 512
+        const ctx = canvas.getContext('2d')
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.font = '900 240px Nunito, Arial Black, sans-serif'
+
+        // Soft shadow
+        ctx.fillStyle = 'rgba(20, 10, 40, 0.45)'
+        ctx.fillText('REZA NABAVI', canvas.width / 2 + 10, canvas.height / 2 + 12)
+
+        // Main fill — purple tone matching the scene letters
+        ctx.fillStyle = '#d8c8ff'
+        ctx.fillText('REZA NABAVI', canvas.width / 2, canvas.height / 2)
+
+        const map = new THREE.CanvasTexture(canvas)
+        map.colorSpace = THREE.SRGBColorSpace
+        map.needsUpdate = true
+        map.anisotropy = 8
+
+        const material = new MeshDefaultMaterial({
+            colorNode: texture(map, uv()),
+            alphaNode: texture(map, uv()).a,
+            hasWater: false,
+            hasLightBounce: false,
+        })
+        material.transparent = true
+        material.depthWrite = false
+        material.side = THREE.DoubleSide
+
+        const span = Math.max(size.x, size.z, 8)
+        const width = span * 1.25
+        const height = width * 0.28
+        const geometry = new THREE.PlaneGeometry(width, height)
+        const mesh = new THREE.Mesh(geometry, material)
+
+        mesh.position.copy(center)
+        mesh.position.y += 0.12
+
+        // Align with the diagonal of the old letter row
+        const first = worldPositions[0]
+        const last = worldPositions[worldPositions.length - 1]
+        const angle = Math.atan2(last.z - first.z, last.x - first.x)
+        mesh.rotation.x = -Math.PI / 2
+        mesh.rotation.z = -angle
+
+        this.game.scene.add(mesh)
+        this.namePlate = mesh
     }
 
     setKiosk()
@@ -49,7 +126,6 @@ export class LandingArea extends Area
             {
                 this.game.inputs.interactiveButtons.clearItems()
                 this.game.modals.open('map')
-                // interactivePoint.hide()
             },
             () =>
             {
@@ -64,11 +140,6 @@ export class LandingArea extends Area
                 this.game.inputs.interactiveButtons.removeItems(['interact'])
             }
         )
-
-        // this.game.map.items.get('map').events.on('close', () =>
-        // {
-        //     interactivePoint.show()
-        // })
     }
 
     setControls()
@@ -131,7 +202,6 @@ export class LandingArea extends Area
             const elevation = uniform(5)
             const positions = new Float32Array(count * 3)
             const scales = new Float32Array(count)
-    
     
             for(let i = 0; i < count; i++)
             {
@@ -226,7 +296,6 @@ export class LandingArea extends Area
 
                 gsap.delayedCall(2, () =>
                 {
-                    // Bonfire
                     particles.visible = true
                     burn.visible = true
                     this.game.ticker.wait(2, () =>
@@ -235,7 +304,6 @@ export class LandingArea extends Area
                         particles.geometry.boundingSphere.radius = 2
                     })
 
-                    // Sound
                     this.game.audio.groups.get('campfire').items[0].positions.push(position)
                 })
             },
